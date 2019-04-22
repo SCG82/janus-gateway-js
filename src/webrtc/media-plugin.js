@@ -1,5 +1,5 @@
 var Promise = require('bluebird');
-var webrtcsupport = require('webrtcsupport');
+var webrtcsupport = require('wrtc');
 var Helpers = require('../helpers');
 var Plugin = require('../plugin');
 var MediaDevicesShim = require('./media-devices-shim');
@@ -45,7 +45,7 @@ MediaPlugin.prototype.createPeerConnection = function(options) {
     Helpers.extend(constraints, options.constraints);
   }
 
-  this._pc = new webrtcsupport.PeerConnection(config, constraints);
+  this._pc = new webrtcsupport.RTCPeerConnection(config, constraints);
   this._addPcEventListeners();
   return this._pc;
 };
@@ -79,9 +79,9 @@ MediaPlugin.prototype.hangup = function() {
 MediaPlugin.prototype.addTrack = function(track, stream) {
   if (!this._pc.addTrack) {
     //TODO remove this part as soon as pc.addTrack is supported by chrome or webrtc/adapter#361 is implemented
-    if (!stream) {
-      throw new Error('MediaPlugin.addTrack. Missing stream argument when pc.addTrack is not supported');
-    }
+    // if (!stream) {
+    //   throw new Error('MediaPlugin.addTrack. Missing stream argument when pc.addTrack is not supported');
+    // }
     this._pc.addStream(stream);
     this.emit('pc:track:local', {streams: [stream]});
   } else {
@@ -154,7 +154,7 @@ MediaPlugin.prototype.createAnswer = function(jsep, options) {
  * @returns {Promise}
  */
 MediaPlugin.prototype.setRemoteSDP = function(jsep) {
-  return this._pc.setRemoteDescription(new webrtcsupport.SessionDescription(jsep));
+  return this._pc.setRemoteDescription(new webrtcsupport.RTCSessionDescription(jsep));
 };
 
 /**
@@ -205,7 +205,7 @@ MediaPlugin.prototype.processIncomeMessage = function(message) {
  * @param {Object} incomeMessage
  */
 MediaPlugin.prototype._onTrickle = function(incomeMessage) {
-  var candidate = new webrtcsupport.IceCandidate(incomeMessage['candidate']);
+  var candidate = new webrtcsupport.RTCIceCandidate(incomeMessage['candidate']);
   this._pc.addIceCandidate(candidate).catch(function(error) {
     this.emit('pc:error', error);
   }.bind(this));

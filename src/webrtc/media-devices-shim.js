@@ -1,5 +1,5 @@
 var Promise = require('bluebird');
-var webrtc = require('webrtc-adapter');
+var webrtc = require('wrtc');
 
 function MediaDevicesShim() {
 }
@@ -15,11 +15,12 @@ function MediaDevicesShim() {
  * @fulfilled {MediaStream} stream
  */
 MediaDevicesShim.getUserMedia = function(constraints) {
-  if (constraints.video === 'screen') {
-    return this.getSharedScreen({audio: constraints.audio});
-  } else {
-    return Promise.resolve(navigator.mediaDevices.getUserMedia(constraints));
-  }
+  return Promise.resolve(webrtc.getUserMedia(constraints));
+  // if (constraints.video === 'screen') {
+  //   return this.getSharedScreen({audio: constraints.audio});
+  // } else {
+  //   return Promise.resolve(navigator.mediaDevices.getUserMedia(constraints));
+  // }
 };
 
 /**
