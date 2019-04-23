@@ -201,7 +201,8 @@ MediaPlugin.prototype._createSDP = function(party, options) {
 
 MediaPlugin.prototype.processIncomeMessage = function(message) {
   var self = this;
-  return Promise.try(function() {
+  return Promise
+    .try(function() {
       return MediaPlugin.super_.prototype.processIncomeMessage.call(self, message);
     })
     .then(function(result) {
