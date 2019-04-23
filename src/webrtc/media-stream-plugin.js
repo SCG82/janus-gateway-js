@@ -130,7 +130,11 @@ MediaStreamPlugin.prototype._offerAnswer = function(jsep, answerOptions) {
   var self = this;
   return Promise
     .try(function() {
-      return self.createPeerConnection();
+      if (!self._pc) {
+        return self.createPeerConnection();
+      } else {
+        return self.getPeerConnection();
+      }
     })
     .then(function() {
       return self.createAnswer(jsep, answerOptions);

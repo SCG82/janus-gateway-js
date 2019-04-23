@@ -144,11 +144,13 @@ MediaPlugin.prototype.createOffer = function(options) {
  */
 MediaPlugin.prototype.createAnswer = function(jsep, options) {
   var self = this;
-  return Promise.try(function() {
-    return self.setRemoteSDP(jsep);
-  }).then(function() {
-    return self._createSDP('createAnswer', options);
-  });
+  return Promise
+    .try(function() {
+      return self.setRemoteSDP(jsep);
+    })
+    .then(function() {
+      return self._createSDP('createAnswer', options);
+    });
 };
 
 /**
