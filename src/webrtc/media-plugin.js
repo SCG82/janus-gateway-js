@@ -16,6 +16,8 @@ function MediaPlugin(session, name, id) {
 
   this._pcListeners = {};
   this._pc = null;
+  this._candidates = [];
+  this._remoteSDP = null;
 }
 
 Helpers.inherits(MediaPlugin, Plugin);
@@ -154,7 +156,22 @@ MediaPlugin.prototype.createAnswer = function(jsep, options) {
  * @returns {Promise}
  */
 MediaPlugin.prototype.setRemoteSDP = function(jsep) {
-  return this._pc.setRemoteDescription(new webrtcsupport.RTCSessionDescription(jsep));
+  // return this._pc.setRemoteDescription(new webrtcsupport.RTCSessionDescription(jsep));
+  return this._pc.setRemoteDescription(jsep)
+    .then(function() {
+      this._remoteSDP = jsep.sdp;
+      if (this._candidates.length > 0) {
+        for (let i in this._candidates) {
+          let candidate = this._candidates[i];
+          if (!candidate || candidate.completed === true) {
+            this._pc.addIceCandidate();
+          } else {
+            this._pc.addIceCandidate(candidate);
+          }
+        }
+        this._candidates = [];
+      }
+    })
 };
 
 /**
@@ -206,9 +223,13 @@ MediaPlugin.prototype.processIncomeMessage = function(message) {
  */
 MediaPlugin.prototype._onTrickle = function(incomeMessage) {
   var candidate = new webrtcsupport.RTCIceCandidate(incomeMessage['candidate']);
-  this._pc.addIceCandidate(candidate).catch(function(error) {
-    this.emit('pc:error', error);
-  }.bind(this));
+  if (this._pc && this._remoteSDP) {
+    this._pc.addIceCandidate(candidate).catch(function(error) {
+      this.emit('pc:error', error);
+    }.bind(this));
+  } else {
+    this._candidates.push(candidate);
+  }
 };
 
 /**
@@ -225,6 +246,8 @@ MediaPlugin.prototype.closePeerConnection = function() {
       .forEach(function(event) {
         this._removePcEventListener(event);
       }.bind(this));
+    this._candidates = [];
+    this._remoteSDP = null;
     this._pc.close();
     this._pc = null;
     this.emit('pc:close');
