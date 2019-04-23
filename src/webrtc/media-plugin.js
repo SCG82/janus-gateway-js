@@ -156,8 +156,7 @@ MediaPlugin.prototype.createAnswer = function(jsep, options) {
  * @returns {Promise}
  */
 MediaPlugin.prototype.setRemoteSDP = function(jsep) {
-  // return this._pc.setRemoteDescription(new webrtcsupport.RTCSessionDescription(jsep));
-  return this._pc.setRemoteDescription(jsep)
+  return this._pc.setRemoteDescription(new webrtcsupport.RTCSessionDescription(jsep))
     .then(function() {
       this._remoteSDP = jsep.sdp;
       if (this._candidates.length > 0) {
@@ -171,7 +170,7 @@ MediaPlugin.prototype.setRemoteSDP = function(jsep) {
         }
         this._candidates = [];
       }
-    })
+    });
 };
 
 /**
