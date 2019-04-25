@@ -12,6 +12,7 @@ Plugin.register(StreamingPlugin.NAME, StreamingPlugin);
 
 /**
  * @see https://janus.conf.meetecho.com/docs/janus__streaming_8c.html
+ * @see https://github.com/meetecho/janus-gateway/pull/1459
  * @param {number} id
  * @param {Object} [options]
  * @param {string} [options.type]
@@ -35,6 +36,14 @@ Plugin.register(StreamingPlugin.NAME, StreamingPlugin);
  * @param {string} [options.videofmtp]
  * @param {boolean} [options.videobufferkf]
  * @param {string} [options.url]
+ * @param {Object[]} [options.media] Unified Plan only (requires unified fork of Janus)
+ * @param {string} options.media[i].type Media type: audio, video
+ * @param {string} options.media[i].mid Unique identification string (REQUIRED)
+ * @param {string} options.media[i].label
+ * @param {number} options.media[i].port
+ * @param {number} options.media[i].pt
+ * @param {number} options.media[i].rtpmap
+ *
  * @returns {Promise}
  * @fulfilled {JanusPluginMessage} response
  */
@@ -67,11 +76,12 @@ StreamingPlugin.prototype.list = function() {
  * @param {Object} [watchOptions]
  * @param {string} [watchOptions.pin]
  * @param {Object} [answerOptions] {@link createAnswer}
+ * @param {string[]} [media] Array of mid's to subscribe to (all if left blank) [requires Janus unified fork]
  * @returns {Promise}
  * @fulfilled {JanusPluginMessage} response
  */
-StreamingPlugin.prototype.watch = function(id, watchOptions, answerOptions) {
-  return this._watch(id, watchOptions, answerOptions);
+StreamingPlugin.prototype.watch = function(id, watchOptions, answerOptions, media) {
+  return this._watch(id, watchOptions, answerOptions, media);
 };
 
 /**

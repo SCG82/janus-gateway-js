@@ -35,12 +35,16 @@ MediaStreamPlugin.prototype._destroy = function(id, options) {
  * @param {string|number} id
  * @param {Object} [watchOptions]
  * @param {Object} [answerOptions]
+ * @param {string[]} [media] Array of mid's to subscribe to (all if left blank) [requires Janus unified fork]
  * @returns {Promise}
  * @fulfilled {JanusPluginMessage} response
  */
-MediaStreamPlugin.prototype._watch = function(id, watchOptions, answerOptions) {
+MediaStreamPlugin.prototype._watch = function(id, watchOptions, answerOptions, media) {
   var plugin = this;
   var body = Helpers.extend({request: 'watch', id: id}, watchOptions);
+  if (typeof media !== 'undefined') {
+    body = Helpers.extend({request: 'watch', id: id, media: media}, watchOptions);
+  }
   return this.sendWithTransaction({body: body})
     .then(function(response) {
       var jsep = response.get('jsep');
